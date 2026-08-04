@@ -6,7 +6,8 @@ import threading
 
 # --- القناة الأولى (Kick -> Restream) ---
 KICK_CHANNEL_1 = "OGxHusni"
-RESTREAM_KEY = "re_11725544_event8ead9cebe8f7413e91214329ef07c0ae"  # مفتاح Restream فارغ حالياً
+# تنبيه: استبدل النص أدناه بمفتاح Restream Stream Key الفعلي وليس Event ID
+RESTREAM_KEY = "re_11725544_event8ead9cebe8f7413e91214329ef07c0ae" 
 URL_RESTREAM = f"rtmp://live.restream.io/live/{RESTREAM_KEY}"
 
 # --- القناة الثانية (Kick -> YouTube) ---
@@ -20,7 +21,7 @@ def stream_worker(kick_channel, target_url, platform_name):
     print(f"[*] Started monitoring [{kick_channel}] for {platform_name}...")
     while True:
         try:
-            # التأكد من وجود مفتاح البث للتقليل من المحاولات الفاشلة
+            # التأكد من عدم وجود رابط فارغ
             if "rtmp://" in target_url and target_url.endswith("/"):
                 print(f"[!] Warning: Key for {platform_name} is empty. Retrying in 30s...")
                 time.sleep(30)
@@ -30,9 +31,11 @@ def stream_worker(kick_channel, target_url, platform_name):
             
             if "http" in stream:
                 print(f"[+] [{kick_channel}] LIVE! Transmitting to {platform_name}...")
-                # أمر FFmpeg معدّل للسرعة الفائقة وتقليل التخزين الموقت (Low Latency)
+                
+                # أمر FFmpeg الجمع بين السرعة الفائقة والثبات ضد التقطيع
                 cmd = (
                     f'ffmpeg -fflags +nobuffer+fastseek -flags low_delay '
+                    f'-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 2 '
                     f'-i "{stream}" -c:v copy -c:a aac -b:a 128k -ar 44100 '
                     f'-f flv "{target_url}"'
                 )
