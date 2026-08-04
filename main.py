@@ -39,7 +39,7 @@ def run_bridge():
 
         print(f"[+] Active stream found for {CHANNEL_NAME}! Launching FFmpeg...")
         
-        ffmpeg_cmd = [
+                ffmpeg_cmd = [
             'ffmpeg',
             '-y',
             '-fflags', '+nobuffer+discardcorrupt',
@@ -48,9 +48,10 @@ def run_bridge():
             '-map', '0:a:0?',
             '-c:v', 'copy',
             '-c:a', 'aac',
-            '-b:a', '128k',
+            '-b:a', '192k',
             '-f', 'flv',
             RTMP_TARGET
+                
         ]
         
         process = subprocess.Popen(ffmpeg_cmd)
