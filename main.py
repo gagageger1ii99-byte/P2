@@ -7,7 +7,7 @@ from curl_cffi import requests
 
 STREAMS = [
     {
-        "channel_name": "firas",
+        "channel_name": "wolf",
         "rtmp_target": "rtmp://a.rtmp.youtube.com/live2/7swd-bmce-ym7w-5e2m-499u"
     },
     {
