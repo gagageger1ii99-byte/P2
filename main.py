@@ -6,7 +6,6 @@ import threading
 
 # --- القناة الأولى (Kick -> Restream) ---
 KICK_CHANNEL_1 = "OGxHusni"
-# تنبيه: استبدل النص أدناه بمفتاح Restream Stream Key الفعلي وليس Event ID
 RESTREAM_KEY = "re_11725544_event8ead9cebe8f7413e91214329ef07c0ae" 
 URL_RESTREAM = f"rtmp://live.restream.io/live/{RESTREAM_KEY}"
 
@@ -21,25 +20,25 @@ def stream_worker(kick_channel, target_url, platform_name):
     print(f"[*] Started monitoring [{kick_channel}] for {platform_name}...")
     while True:
         try:
-            # التأكد من عدم وجود رابط فارغ
             if "rtmp://" in target_url and target_url.endswith("/"):
                 print(f"[!] Warning: Key for {platform_name} is empty. Retrying in 30s...")
                 time.sleep(30)
                 continue
 
-            stream = os.popen(f'yt-dlp -g "https://kick.com/{kick_channel}"').read().strip()
+            # استخدام --impersonate chrome لتجاوز حظر HTTP 403 Forbidden من Kick
+            cmd_extract = f'yt-dlp --impersonate chrome -g "https://kick.com/{kick_channel}"'
+            stream = os.popen(cmd_extract).read().strip()
             
             if "http" in stream:
                 print(f"[+] [{kick_channel}] LIVE! Transmitting to {platform_name}...")
                 
-                # أمر FFmpeg الجمع بين السرعة الفائقة والثبات ضد التقطيع
-                cmd = (
+                cmd_ffmpeg = (
                     f'ffmpeg -fflags +nobuffer+fastseek -flags low_delay '
                     f'-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 2 '
                     f'-i "{stream}" -c:v copy -c:a aac -b:a 128k -ar 44100 '
                     f'-f flv "{target_url}"'
                 )
-                os.system(cmd)
+                os.system(cmd_ffmpeg)
                 print(f"[-] [{kick_channel}] Stream disconnected. Re-checking in 5s...")
                 time.sleep(5)
             else:
