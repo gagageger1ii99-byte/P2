@@ -4,7 +4,6 @@ import time
 import subprocess
 from curl_cffi import requests
 
-# إعداد القنوات وتحديد السيرفر المناسب لكل مفتاح
 STREAMS = [
     {
         "channel_name": "firas",
