@@ -3,7 +3,6 @@ import sys
 import time
 import subprocess
 from curl_cffi import requests
-import yt_dlp
 
 STREAMS = [
     {
@@ -26,7 +25,6 @@ def get_kick_stream_url(channel_name):
     }
     
     try:
-        # استخدام curl_cffi لجلب بيانات API وتخطي Cloudflare 403
         response = requests.get(api_url, headers=headers, impersonate="chrome120", timeout=15)
         if response.status_code == 200:
             data = response.json()
@@ -45,37 +43,42 @@ def get_kick_stream_url(channel_name):
 def start_stream():
     print("[*] Starting Kick Continuous Stream Bot...")
     
-    live_url = None
-    target_key = None
-    
-    for stream in STREAMS:
-        channel = stream["channel_name"]
-        print(f"[*] Checking live status for Kick channel: {channel}...")
-        url = get_kick_stream_url(channel)
-        if url:
-            live_url = url
-            target_key = stream["stream_key"]
-            print(f"[+] Active stream found for {channel}!")
-            break
+    while True:
+        live_url = None
+        target_key = None
+        
+        for stream in STREAMS:
+            channel = stream["channel_name"]
+            print(f"[*] Checking live status for Kick channel: {channel}...")
+            url = get_kick_stream_url(channel)
+            if url:
+                live_url = url
+                target_key = stream["stream_key"]
+                print(f"[+] Active stream found for {channel}!")
+                break
 
-    if not live_url:
-        print("[!] No active live streams found or channels are currently offline.")
-        return
+        if not live_url:
+            print("[!] No active live streams found. Retrying in 30 seconds...")
+            time.sleep(30)
+            continue
 
-    full_restream_url = RESTREAM_BASE_URL + target_key
+        full_restream_url = RESTREAM_BASE_URL + target_key
 
-    print("[*] Launching FFmpeg to relay stream to Restream...")
-    ffmpeg_cmd = [
-        'ffmpeg',
-        '-re',
-        '-i', live_url,
-        '-c:v', 'copy',
-        '-c:a', 'aac',
-        '-f', 'flv',
-        full_restream_url
-    ]
-    
-    subprocess.run(ffmpeg_cmd)
+        print("[*] Launching FFmpeg to relay stream to Restream...")
+        ffmpeg_cmd = [
+            'ffmpeg',
+            '-re',
+            '-i', live_url,
+            '-c:v', 'copy',
+            '-c:a', 'aac',
+            '-f', 'flv',
+            full_restream_url
+        ]
+        
+        # تشغيل FFmpeg، وفي حال التوقف يعيد السكربت المحاولة تلقائياً
+        subprocess.run(ffmpeg_cmd)
+        print("[!] FFmpeg process ended. Restarting check in 5 seconds...")
+        time.sleep(5)
 
 if __name__ == "__main__":
     start_stream()
