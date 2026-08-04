@@ -3,13 +3,9 @@ import time
 import subprocess
 from curl_cffi import requests
 
-# معلومات قناة وولف (تذهب إلى يوتيوب)
-CHANNEL_1 = "abuswe7l"
-RTMP_TARGET_1 = "rtmp://a.rtmp.youtube.com/live2/7swd-bmce-ym7w-5e2m-499u"
-
-# معلومات قناة أيمن (تذهب إلى ريستريم)
-CHANNEL_2 = "IB6h"
-RTMP_TARGET_2 = "rtmp://live.restream.io/live/re_11725544_eventa752cf60ea2c4cecbd8820b54335d0aa"
+# معلومات قناة وولف (تذهب إلى يوتيوب مباشرة)
+CHANNEL_NAME = "abuswe7l"
+RTMP_TARGET = "rtmp://a.rtmp.youtube.com/live2/7swd-bmce-ym7w-5e2m-499u"
 
 def get_kick_stream_url(channel_name):
     api_url = f"https://kick.com/api/v2/channels/{channel_name}"
@@ -30,18 +26,18 @@ def get_kick_stream_url(channel_name):
         pass
     return None
 
-def run_bridge(channel_name, rtmp_target):
-    print(f"[*] Starting Stream Bridge for: {channel_name}...")
+def run_bridge():
+    print(f"[*] Starting Stream Bridge for: {CHANNEL_NAME}...")
     
     while True:
-        live_url = get_kick_stream_url(channel_name)
+        live_url = get_kick_stream_url(CHANNEL_NAME)
         
         if not live_url:
-            print(f"[!] Stream for {channel_name} is offline. Retrying in 30 seconds...")
+            print(f"[!] Stream for {CHANNEL_NAME} is offline. Retrying in 30 seconds...")
             time.sleep(30)
             continue
 
-        print(f"[+] Active stream found for {channel_name}! Launching FFmpeg...")
+        print(f"[+] Active stream found for {CHANNEL_NAME}! Launching FFmpeg...")
         
         ffmpeg_cmd = [
             'ffmpeg',
@@ -54,23 +50,13 @@ def run_bridge(channel_name, rtmp_target):
             '-c:a', 'aac',
             '-b:a', '128k',
             '-f', 'flv',
-            rtmp_target
+            RTMP_TARGET
         ]
         
         process = subprocess.Popen(ffmpeg_cmd)
         process.wait()
-        print(f"[!] FFmpeg connection dropped for {channel_name}. Re-checking in 5 seconds...")
+        print(f"[!] FFmpeg connection dropped for {CHANNEL_NAME}. Re-checking in 5 seconds...")
         time.sleep(5)
 
 if __name__ == "__main__":
-    import threading
-    
-    # تشغيل القناتين معاً بالتوازي
-    t1 = threading.Thread(target=run_bridge, args=(CHANNEL_1, RTMP_TARGET_1))
-    t2 = threading.Thread(target=run_bridge, args=(CHANNEL_2, RTMP_TARGET_2))
-    
-    t1.start()
-    t2.start()
-    
-    t1.join()
-    t2.join()
+    run_bridge()
