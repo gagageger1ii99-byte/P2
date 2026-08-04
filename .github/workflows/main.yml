@@ -22,7 +22,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ffmpeg
           python -m pip install --upgrade pip
-          pip install yt-dlp "curl_cffi>=0.5.10"
+          pip install "yt-dlp[default]" "curl_cffi>=0.5.10"
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run Main Script
