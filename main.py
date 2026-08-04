@@ -20,7 +20,7 @@ def stream_worker(kick_channel, target_url, platform_name):
     print(f"[*] Started monitoring [{kick_channel}] for {platform_name}...")
     while True:
         try:
-            # التأكد من وجود رابط البث أولاً إذا كان الكي متوفراً
+            # التأكد من وجود مفتاح البث للتقليل من المحاولات الفاشلة
             if "rtmp://" in target_url and target_url.endswith("/"):
                 print(f"[!] Warning: Key for {platform_name} is empty. Retrying in 30s...")
                 time.sleep(30)
@@ -30,18 +30,20 @@ def stream_worker(kick_channel, target_url, platform_name):
             
             if "http" in stream:
                 print(f"[+] [{kick_channel}] LIVE! Transmitting to {platform_name}...")
+                # أمر FFmpeg معدّل للسرعة الفائقة وتقليل التخزين الموقت (Low Latency)
                 cmd = (
-                    f'ffmpeg -reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5 '
+                    f'ffmpeg -fflags +nobuffer+fastseek -flags low_delay '
                     f'-i "{stream}" -c:v copy -c:a aac -b:a 128k -ar 44100 '
                     f'-f flv "{target_url}"'
                 )
                 os.system(cmd)
-                print(f"[-] [{kick_channel}] Stream disconnected. Re-checking in 10s...")
+                print(f"[-] [{kick_channel}] Stream disconnected. Re-checking in 5s...")
+                time.sleep(5)
             else:
-                time.sleep(15)
+                time.sleep(10)
         except Exception as e:
             print(f"[!] Error in {kick_channel} ({platform_name}): {e}")
-            time.sleep(15)
+            time.sleep(10)
 
 
 # ------------ تشغيل القناتين بالتوازي (Threads) ------------
