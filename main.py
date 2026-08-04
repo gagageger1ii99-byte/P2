@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import subprocess
+from threading import Thread
 from curl_cffi import requests
 
 STREAMS = [
@@ -29,40 +30,24 @@ def get_kick_stream_url(channel_name):
             playback_url = data.get("playback_url")
             if playback_url:
                 return playback_url
-            else:
-                print(f"[-] Channel {channel_name} is currently offline.")
-        else:
-            print(f"[!] API Error {response.status_code} for channel {channel_name}")
-    except Exception as e:
-        print(f"[!] Request Exception for {channel_name}: {e}")
-        
-    return None
+        return None
+    except Exception:
+        return None
 
-def start_stream():
-    print("[*] Starting Kick Continuous Stream Bot...")
+def handle_stream(stream):
+    channel = stream["channel_name"]
+    target_rtmp = stream["rtmp_target"]
+    print(f"[*] Worker started for channel: {channel}")
     
     while True:
-        live_url = None
-        target_rtmp = None
-        active_channel = None
+        live_url = get_kick_stream_url(channel)
         
-        for stream in STREAMS:
-            channel = stream["channel_name"]
-            print(f"[*] Checking live status for Kick channel: {channel}...")
-            url = get_kick_stream_url(channel)
-            if url:
-                live_url = url
-                target_rtmp = stream["rtmp_target"]
-                active_channel = channel
-                print(f"[+] Active stream found for {channel}!")
-                break
-
         if not live_url:
-            print("[!] No active live streams found. Retrying in 30 seconds...")
+            print(f"[-] Channel {channel} is offline. Retrying in 30 seconds...")
             time.sleep(30)
             continue
 
-        print(f"[*] Launching FFmpeg to relay stream from {active_channel}...")
+        print(f"[+] Active stream found for {channel}! Launching FFmpeg...")
         ffmpeg_cmd = [
             'ffmpeg',
             '-re',
@@ -74,8 +59,21 @@ def start_stream():
         ]
         
         subprocess.run(ffmpeg_cmd)
-        print("[!] FFmpeg process ended. Restarting check in 5 seconds...")
+        print(f"[!] FFmpeg ended for {channel}. Restarting check in 5 seconds...")
         time.sleep(5)
 
+def start_bot():
+    print("[*] Starting Multi-Stream Bot for all channels simultaneously...")
+    threads = []
+    
+    for stream in STREAMS:
+        t = Thread(target=handle_stream, args=(stream,))
+        t.daemon = True
+        threads.append(t)
+        t.start()
+        
+    for t in threads:
+        t.join()
+
 if __name__ == "__main__":
-    start_stream()
+    start_bot()
