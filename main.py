@@ -5,8 +5,8 @@ import threading
 # ------------ الإعدادات ------------
 
 # --- القناة الأولى (Kick -> Restream) ---
-KICK_CHANNEL_1 = "اسم_القناة_الأولى"
-RESTREAM_KEY = ""  # مفتاح Restream فارغ حالياً
+KICK_CHANNEL_1 = "OGxHusni"
+RESTREAM_KEY = "re_11725544_event8ead9cebe8f7413e91214329ef07c0ae"  # مفتاح Restream فارغ حالياً
 URL_RESTREAM = f"rtmp://live.restream.io/live/{RESTREAM_KEY}"
 
 # --- القناة الثانية (Kick -> YouTube) ---
