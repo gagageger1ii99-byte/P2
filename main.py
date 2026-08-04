@@ -10,7 +10,7 @@ RESTREAM_KEY = ""  # مفتاح Restream فارغ حالياً
 URL_RESTREAM = f"rtmp://live.restream.io/live/{RESTREAM_KEY}"
 
 # --- القناة الثانية (Kick -> YouTube) ---
-KICK_CHANNEL_2 = "اسم_القناة_الثانية"
+KICK_CHANNEL_2 = "Majah92"
 YOUTUBE_KEY = "7swd-bmce-ym7w-5e2m-499u"
 URL_YOUTUBE = f"rtmp://a.rtmp.youtube.com/live2/{YOUTUBE_KEY}"
 
