@@ -3,11 +3,11 @@ import time
 import subprocess
 from curl_cffi import requests
 
-# معلومات القناة الأولى (تذهب إلى يوتيوب)
+# معلومات قناة وولف (تذهب إلى يوتيوب)
 CHANNEL_1 = "wolf"
 RTMP_TARGET_1 = "rtmp://a.rtmp.youtube.com/live2/7swd-bmce-ym7w-5e2m-499u"
 
-# معلومات القناة الثانية (تذهب إلى ريستريم)
+# معلومات قناة أيمن (تذهب إلى ريستريم)
 CHANNEL_2 = "aymnalsatam"
 RTMP_TARGET_2 = "rtmp://live.restream.io/live/re_11725544_eventa752cf60ea2c4cecbd8820b54335d0aa"
 
@@ -65,7 +65,7 @@ def run_bridge(channel_name, rtmp_target):
 if __name__ == "__main__":
     import threading
     
-    # تشغيل البثين معاً في نفس الوقت باستخدام الخيوط (Threads)
+    # تشغيل القناتين معاً بالتوازي
     t1 = threading.Thread(target=run_bridge, args=(CHANNEL_1, RTMP_TARGET_1))
     t2 = threading.Thread(target=run_bridge, args=(CHANNEL_2, RTMP_TARGET_2))
     
