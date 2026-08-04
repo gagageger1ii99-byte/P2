@@ -2,48 +2,45 @@ import os
 import sys
 import time
 import subprocess
+from curl_cffi import requests
 import yt_dlp
 
-# قائمة القنوات والمفاتيح المحددة
 STREAMS = [
     {
-        "channel_url": "https://kick.com/firas",
+        "channel_name": "firas",
         "stream_key": "7swd-bmce-ym7w-5e2m-499u"
     },
     {
-        "channel_url": "https://kick.com/Majah92",
+        "channel_name": "Majah92",
         "stream_key": "re_11725544_eventa752cf60ea2c4cecbd8820b54335d0aa"
     }
 ]
 
 RESTREAM_BASE_URL = "rtmp://live.restream.io/live/"
 
-def get_stream_url(kick_url):
-    ydl_opts = {
-        'format': 'best',
-        'quiet': True,
-        'no_warnings': True,
-        'impersonate': 'chrome',  # لتخطي حظر Cloudflare / Kick 403
-        'http_headers': {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept-Language': 'en-US,en;q=0.9',
-        }
+def get_kick_stream_url(channel_name):
+    api_url = f"https://kick.com/api/v2/channels/{channel_name}"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+        "Accept": "application/json",
     }
+    
     try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(kick_url, download=False)
-            return info.get('url', None)
+        # استخدام curl_cffi لجلب بيانات API وتخطي Cloudflare 403
+        response = requests.get(api_url, headers=headers, impersonate="chrome120", timeout=15)
+        if response.status_code == 200:
+            data = response.json()
+            playback_url = data.get("playback_url")
+            if playback_url:
+                return playback_url
+            else:
+                print(f"[-] Channel {channel_name} is currently offline.")
+        else:
+            print(f"[!] API Error {response.status_code} for channel {channel_name}")
     except Exception as e:
-        print(f"[!] Primary extract error for {kick_url}: {e}")
-        # محاولة احتياطية بدون خيار المحاكاة المباشر
-        try:
-            ydl_opts.pop('impersonate', None)
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(kick_url, download=False)
-                return info.get('url', None)
-        except Exception as e2:
-            print(f"[!] Fallback extract error: {e2}")
-            return None
+        print(f"[!] Request Exception for {channel_name}: {e}")
+        
+    return None
 
 def start_stream():
     print("[*] Starting Kick Continuous Stream Bot...")
@@ -52,12 +49,13 @@ def start_stream():
     target_key = None
     
     for stream in STREAMS:
-        print(f"[*] Checking live status for: {stream['channel_url']}...")
-        url = get_stream_url(stream['channel_url'])
+        channel = stream["channel_name"]
+        print(f"[*] Checking live status for Kick channel: {channel}...")
+        url = get_kick_stream_url(channel)
         if url:
             live_url = url
-            target_key = stream['stream_key']
-            print(f"[+] Found active stream on {stream['channel_url']}!")
+            target_key = stream["stream_key"]
+            print(f"[+] Active stream found for {channel}!")
             break
 
     if not live_url:
