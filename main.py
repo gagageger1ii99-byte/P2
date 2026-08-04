@@ -8,7 +8,7 @@ CHANNEL_1 = "wolf"
 RTMP_TARGET_1 = "rtmp://a.rtmp.youtube.com/live2/7swd-bmce-ym7w-5e2m-499u"
 
 # معلومات قناة أيمن (تذهب إلى ريستريم)
-CHANNEL_2 = "aymnalsatam"
+CHANNEL_2 = "IB6h"
 RTMP_TARGET_2 = "rtmp://live.restream.io/live/re_11725544_eventa752cf60ea2c4cecbd8820b54335d0aa"
 
 def get_kick_stream_url(channel_name):
