@@ -22,8 +22,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ffmpeg
           pip install --upgrade pip
-          pip install curl_cffi yt-dlp
           pip install -r requirements.txt
 
       - name: Run Main Script
         run: python main.py
+
