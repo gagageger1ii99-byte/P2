@@ -4,7 +4,7 @@ import subprocess
 from curl_cffi import requests
 
 # معلومات قناة وولف (تذهب إلى يوتيوب)
-CHANNEL_1 = "wolf"
+CHANNEL_1 = "abuswe7l"
 RTMP_TARGET_1 = "rtmp://a.rtmp.youtube.com/live2/7swd-bmce-ym7w-5e2m-499u"
 
 # معلومات قناة أيمن (تذهب إلى ريستريم)
