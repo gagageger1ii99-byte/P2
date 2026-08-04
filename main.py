@@ -1,9 +1,7 @@
-import os
 import time
 import subprocess
 from curl_cffi import requests
 
-# معلومات قناة وولف (تذهب إلى يوتيوب مباشرة)
 CHANNEL_NAME = "abuswe7l"
 RTMP_TARGET = "rtmp://a.rtmp.youtube.com/live2/7swd-bmce-ym7w-5e2m-499u"
 
@@ -16,14 +14,20 @@ def get_kick_stream_url(channel_name):
         "Origin": "https://kick.com/"
     }
     try:
+        print(f"[*] Checking Kick API for channel: {channel_name}...")
         response = requests.get(api_url, headers=headers, impersonate="chrome120", timeout=15)
+        print(f"[*] API Status Code: {response.status_code}")
+        
         if response.status_code == 200:
             data = response.json()
             playback_url = data.get("playback_url")
             if playback_url:
+                print(f"[+] Found Playback URL!")
                 return playback_url
-    except Exception:
-        pass
+            else:
+                print(f"[-] Channel is offline or no playback_url found in JSON.")
+    except Exception as e:
+        print(f"[!] Error fetching Kick API: {e}")
     return None
 
 def run_bridge():
@@ -33,13 +37,13 @@ def run_bridge():
         live_url = get_kick_stream_url(CHANNEL_NAME)
         
         if not live_url:
-            print(f"[!] Stream for {CHANNEL_NAME} is offline. Retrying in 30 seconds...")
+            print(f"[!] Stream for {CHANNEL_NAME} is offline or waiting. Retrying in 30 seconds...")
             time.sleep(30)
             continue
 
         print(f"[+] Active stream found for {CHANNEL_NAME}! Launching FFmpeg...")
         
-                ffmpeg_cmd = [
+        ffmpeg_cmd = [
             'ffmpeg',
             '-y',
             '-fflags', '+nobuffer+discardcorrupt',
@@ -51,7 +55,6 @@ def run_bridge():
             '-b:a', '192k',
             '-f', 'flv',
             RTMP_TARGET
-                
         ]
         
         process = subprocess.Popen(ffmpeg_cmd)
