@@ -4,18 +4,17 @@ import time
 import subprocess
 from curl_cffi import requests
 
+# إعداد القنوات وتحديد السيرفر المناسب لكل مفتاح
 STREAMS = [
     {
         "channel_name": "firas",
-        "stream_key": "7swd-bmce-ym7w-5e2m-499u"
+        "rtmp_target": "rtmp://a.rtmp.youtube.com/live2/7swd-bmce-ym7w-5e2m-499u"
     },
     {
         "channel_name": "Majah92",
-        "stream_key": "re_11725544_eventa752cf60ea2c4cecbd8820b54335d0aa"
+        "rtmp_target": "rtmp://live.restream.io/live/re_11725544_eventa752cf60ea2c4cecbd8820b54335d0aa"
     }
 ]
-
-RESTREAM_BASE_URL = "rtmp://live.restream.io/live/"
 
 def get_kick_stream_url(channel_name):
     api_url = f"https://kick.com/api/v2/channels/{channel_name}"
@@ -45,7 +44,8 @@ def start_stream():
     
     while True:
         live_url = None
-        target_key = None
+        target_rtmp = None
+        active_channel = None
         
         for stream in STREAMS:
             channel = stream["channel_name"]
@@ -53,7 +53,8 @@ def start_stream():
             url = get_kick_stream_url(channel)
             if url:
                 live_url = url
-                target_key = stream["stream_key"]
+                target_rtmp = stream["rtmp_target"]
+                active_channel = channel
                 print(f"[+] Active stream found for {channel}!")
                 break
 
@@ -62,9 +63,7 @@ def start_stream():
             time.sleep(30)
             continue
 
-        full_restream_url = RESTREAM_BASE_URL + target_key
-
-        print("[*] Launching FFmpeg to relay stream to Restream...")
+        print(f"[*] Launching FFmpeg to relay stream from {active_channel}...")
         ffmpeg_cmd = [
             'ffmpeg',
             '-re',
@@ -72,10 +71,9 @@ def start_stream():
             '-c:v', 'copy',
             '-c:a', 'aac',
             '-f', 'flv',
-            full_restream_url
+            target_rtmp
         ]
         
-        # تشغيل FFmpeg، وفي حال التوقف يعيد السكربت المحاولة تلقائياً
         subprocess.run(ffmpeg_cmd)
         print("[!] FFmpeg process ended. Restarting check in 5 seconds...")
         time.sleep(5)
