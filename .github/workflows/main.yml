@@ -10,20 +10,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install Dependencies & FFmpeg
+      - name: Install Dependencies & Setup Impersonate
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg
-          pip install --upgrade pip
-          pip install curl_cffi yt-dlp
-          pip install -r requirements.txt
+          python -m pip install --upgrade pip
+          pip install yt-dlp "curl_cffi>=0.5.10"
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run Main Script
         run: python main.py
