@@ -11,7 +11,7 @@ STREAMS = [
         "rtmp_target": "rtmp://a.rtmp.youtube.com/live2/7swd-bmce-ym7w-5e2m-499u"
     },
     {
-        "channel_name": "Majah92",
+        "channel_name": "majah92",
         "rtmp_target": "rtmp://live.restream.io/live/re_11725544_eventa752cf60ea2c4cecbd8820b54335d0aa"
     }
 ]
