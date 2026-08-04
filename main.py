@@ -10,7 +10,7 @@ STREAMS = [
         "rtmp_target": "rtmp://a.rtmp.youtube.com/live2/7swd-bmce-ym7w-5e2m-499u"
     },
     {
-        "channel_name": "majah92",
+        "channel_name": "aymnalsatam",
         "rtmp_target": "rtmp://live.restream.io/live/re_11725544_event57b4ae7f7bef4493a9528d5432741a03"
     }
 ]
@@ -79,4 +79,3 @@ def start_stream():
 
 if __name__ == "__main__":
     start_stream()
-
