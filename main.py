@@ -2,7 +2,7 @@ import time
 import subprocess
 from curl_cffi import requests
 
-CHANNEL_NAME = "abuswe7l"
+CHANNEL_NAME = "ABO8ALYY"
 RTMP_TARGET = "rtmp://a.rtmp.youtube.com/live2/7swd-bmce-ym7w-5e2m-499u"
 
 def get_kick_stream_url(channel_name):
